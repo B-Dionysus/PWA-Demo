@@ -76,6 +76,7 @@ export function initialFetch(){
     })
     .catch(err => {
       // fetch failed, so save in indexed db
+      console.log("only once, right?");
       saveRecord(transaction);
   
       // clear form

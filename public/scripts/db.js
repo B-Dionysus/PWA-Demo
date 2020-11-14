@@ -18,6 +18,7 @@ request.onsuccess = function (event) {
   db = event.target.result;
 
   if (navigator.onLine) {
+    console.log("CHECKING");
     checkDatabase();
   }
 };
@@ -28,34 +29,32 @@ request.onerror = function (event) {
 };
 
 export function saveRecord(record) {
-  // create a indexDBTransaction on the pending db with readwrite access
+  // create a transaction on the pending db with readwrite access
   // access your pending object store
   // add record to your store with add method.
-  db = request.result;
-  const indexDBTransaction = db.indexDBTransaction(["pending"], "readwrite");
-  const budgetStore = indexDBTransaction.objectStore("pending");
+  // db = request.result;
+  const transaction = db.transaction(["pending"], "readwrite");
+  const budgetStore = transaction.objectStore("pending");
   budgetStore.add(record);        
 }
 
 function checkDatabase() {
 
-  db = request.result;
-  const indexDBTransaction = db.indexDBTransaction(["pending"], "readwrite");
-  const budgetStore = indexDBTransaction.objectStore("pending");
+  // db = request.result;
+  const transaction = db.transaction(["pending"], "readwrite");
+  const budgetStore = transaction.objectStore("pending");
 
   
   const getAll = budgetStore.getAll();
-  console.log("get all:");
-  console.log(getAll);
-  // open a indexDBTransaction on your pending db
+  // open a transaction on your pending db
   // access your pending object store
   // get all records from store and set to a variable
   getAll.onsuccess = function () {
     if (getAll.result.length > 0) {
 
-      console.log("There is something in indexDB");
+      console.log("There is something in indexDB, put it in mongo");
       console.log(getAll);
-      fetch('/api/indexDBTransaction/bulk', {
+      fetch('/api/transaction/bulk', {
         method: 'POST',
         body: JSON.stringify(getAll.result),
         headers: {
@@ -65,13 +64,13 @@ function checkDatabase() {
       })
         .then((response) => response.json())
         .then(() => {
-          // if successful, open a indexDBTransaction on your pending db
+          // if successful, open a transaction on your pending db
           // access your pending object store
           // clear all items in your store
-          db = request.result;
+          // db = request.result;
           console.log("celaring?");
-          const indexDBTransaction = db.indexDBTransaction(["pending"], "readwrite");
-          const budgetStore = indexDBTransaction.objectStore("pending");
+          const transaction = db.transaction(["pending"], "readwrite");
+          const budgetStore = transaction.objectStore("pending");
           budgetStore.clear();
         });
     }
